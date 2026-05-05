@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Tikri Junction Delivery Partner Portal — Manage orders, earnings, and deliveries.">
+  <meta name="theme-color" content="#0f172a">
+  <title>Tikri Junction | Delivery Partner Portal</title>
+
+  <!-- Favicon -->
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛵</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/partner.css">
+</head>
+
+<body>
+
+  <!-- ============================
+       PREMIUM BACKGROUND EFFECTS
+       ============================ -->
+  <!-- Animated Gradient Orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <!-- Noise Texture Overlay -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- Floating Particle Canvas -->
+  <canvas id="particleCanvas" aria-hidden="true"></canvas>
+
+  <!-- Confetti Container -->
+  <div class="confetti-container" id="confetti-container" aria-hidden="true"></div>
+
+  <!-- ============================
+       DEV MODE OTP MODAL
+       (Shown when no SMS provider configured)
+       ============================ -->
+  <div class="dev-otp-overlay" id="devOtpOverlay" style="display:none">
+    <div class="dev-otp-modal">
+      <div class="dev-otp-badge">📱 Dev Mode — No SMS Sent</div>
+      <div class="dev-otp-title">Your OTP is</div>
+      <div class="dev-otp-digits" id="devOtpDigits">----</div>
+      <p class="dev-otp-note">This OTP has been auto-filled below.<br>Click <strong>Verify &amp; Login</strong> to continue.</p>
+      <button class="dev-otp-close" id="devOtpClose">Got it ✓</button>
+    </div>
+  </div>
+
+  <!-- ============================
+       SPLASH SCREEN
+       ============================ -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <div class="splash-logo-ring">
+        <div class="splash-logo">🛵</div>
+      </div>
+      <div class="splash-brand">Tikri <span>Junction</span></div>
+      <div class="splash-sub">Delivery Partner</div>
+      <div class="splash-loader">
+        <div class="splash-loader-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================
+       APP CONTAINER (Mobile Frame)
+       ============================ -->
+  <div class="app-frame">
+    <div class="phone-mockup">
+
+      <!-- ============================
+           SCREEN: LOGIN
+           ============================ -->
+      <div class="screen active" id="screen-login">
+        <div class="login-screen">
+          <div class="login-header">
+            <div class="login-illustration">
+              <div class="delivery-icon-big">🛵</div>
+              <div class="delivery-particles">
+                <span>✨</span><span>💨</span><span>📦</span>
+              </div>
+            </div>
+            <h1 class="login-title">Tikri <span>Junction</span></h1>
+            <p class="login-subtitle">Delivery Partner Portal</p>
+          </div>
+
+          <div class="login-form-container">
+            <!-- Step 1: Phone Number -->
+            <div class="login-step active" id="login-step-phone">
+              <div class="form-label-row">
+                <label>Mobile Number</label>
+                <span class="form-hint">We'll send you an OTP</span>
+              </div>
+              <div class="phone-input-group">
+                <span class="country-code">+91</span>
+                <input type="tel" id="login-phone" placeholder="Enter 10-digit number" maxlength="10"
+                  autocomplete="tel">
+              </div>
+              <button class="btn-primary-full" id="btn-send-otp" disabled>
+                Send OTP
+              </button>
+              <div class="login-footer-text">
+                New partner? <a href="#" id="link-register">Register here</a>
+              </div>
+            </div>
+
+            <!-- Step 2: OTP Verification -->
+            <div class="login-step" id="login-step-otp">
+              <div class="otp-header">
+                <button class="btn-back" id="btn-back-to-phone">←</button>
+                <div>
+                  <h3>Verify OTP</h3>
+                  <p class="otp-sent-to">Sent to <span id="otp-phone-display">+91 98765 43210</span></p>
+                </div>
+              </div>
+              <div class="otp-input-group" id="otp-inputs">
+                <input type="text" maxlength="1" class="otp-box" data-index="0" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-box" data-index="1" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-box" data-index="2" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-box" data-index="3" inputmode="numeric">
+              </div>
+              <button class="btn-primary-full" id="btn-verify-otp" disabled>
+                Verify & Login
+              </button>
+              <div class="resend-timer">
+                Resend OTP in <span id="resend-countdown">30</span>s
+              </div>
+              <button class="btn-text resend-btn hidden" id="btn-resend-otp">Resend OTP</button>
+            </div>
+          </div>
+
+          <div class="login-bottom-art">
+            <div class="wave wave-1"></div>
+            <div class="wave wave-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================
+           SCREEN: REGISTRATION
+           ============================ -->
+      <div class="screen" id="screen-register">
+        <div class="register-screen">
+          <!-- Registration Header -->
+          <div class="register-header">
+            <button class="btn-back" id="btn-back-to-login">←</button>
+            <h2>Become a Partner</h2>
+            <div class="register-steps-indicator">
+              <div class="step-dot active" data-step="1">1</div>
+              <div class="step-line"></div>
+              <div class="step-dot" data-step="2">2</div>
+              <div class="step-line"></div>
+              <div class="step-dot" data-step="3">3</div>
+            </div>
+          </div>
+
+          <!-- Step 1: Personal Info -->
+          <div class="register-step active" id="reg-step-1">
+            <h3 class="step-title">📋 Personal Information</h3>
+            <div class="form-group">
+              <label for="reg-name">Full Name</label>
+              <input type="text" id="reg-name" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Email Address</label>
+              <input type="email" id="reg-email" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+              <label for="reg-phone">Mobile Number</label>
+              <div class="phone-input-group">
+                <span class="country-code">+91</span>
+                <input type="tel" id="reg-phone" placeholder="10-digit number" maxlength="10">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="reg-city">City</label>
+              <select id="reg-city">
+                <option value="">Select City</option>
+                <option value="ballia">Ballia</option>
+                <option value="bansdih">Bansdih</option>
+                <option value="kewra">Kewra</option>
+                <option value="sahatwar">Sahatwar</option>
+              </select>
+            </div>
+            <button class="btn-primary-full" id="btn-reg-next-1">Continue →</button>
+          </div>
+
+          <!-- Step 2: Vehicle & Documents -->
+          <div class="register-step" id="reg-step-2">
+            <h3 class="step-title">🏍️ Vehicle & Documents</h3>
+            <div class="form-group">
+              <label for="reg-vehicle">Vehicle Type</label>
+              <div class="vehicle-select">
+                <label class="vehicle-option">
+                  <input type="radio" name="vehicle" value="bike" checked>
+                  <div class="vehicle-card">
+                    <span class="vehicle-icon">🏍️</span>
+                    <span>Bike</span>
+                  </div>
+                </label>
+                <label class="vehicle-option">
+                  <input type="radio" name="vehicle" value="bicycle">
+                  <div class="vehicle-card">
+                    <span class="vehicle-icon">🚲</span>
+                    <span>Bicycle</span>
+                  </div>
+                </label>
+                <label class="vehicle-option">
+                  <input type="radio" name="vehicle" value="scooter">
+                  <div class="vehicle-card">
+                    <span class="vehicle-icon">🛵</span>
+                    <span>Scooter</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="reg-license">Vehicle Number</label>
+              <input type="text" id="reg-license" placeholder="e.g. UP 64 AB 1234">
+            </div>
+            <div class="form-group">
+              <label>Upload Documents</label>
+              <div class="upload-grid">
+                <div class="upload-card" id="upload-dl">
+                  <div class="upload-icon">📄</div>
+                  <span>Driving License</span>
+                  <div class="upload-status">Tap to upload</div>
+                </div>
+                <div class="upload-card" id="upload-aadhaar">
+                  <div class="upload-icon">🪪</div>
+                  <span>Aadhaar Card</span>
+                  <div class="upload-status">Tap to upload</div>
+                </div>
+                <div class="upload-card" id="upload-rc">
+                  <div class="upload-icon">📋</div>
+                  <span>RC Book</span>
+                  <div class="upload-status">Tap to upload</div>
+                </div>
+                <div class="upload-card" id="upload-photo">
+                  <div class="upload-icon">📸</div>
+                  <span>Photo</span>
+                  <div class="upload-status">Tap to upload</div>
+                </div>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn-secondary" id="btn-reg-back-2">← Back</button>
+              <button class="btn-primary-full" id="btn-reg-next-2">Continue →</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Bank Details -->
+          <div class="register-step" id="reg-step-3">
+            <h3 class="step-title">🏦 Bank Details</h3>
+            <div class="form-group">
+              <label for="reg-bank-name">Bank Name</label>
+              <input type="text" id="reg-bank-name" placeholder="e.g. State Bank of India">
+            </div>
+            <div class="form-group">
+              <label for="reg-account">Account Number</label>
+              <input type="text" id="reg-account" placeholder="Enter account number">
+            </div>
+            <div class="form-group">
+              <label for="reg-ifsc">IFSC Code</label>
+              <input type="text" id="reg-ifsc" placeholder="e.g. SBIN0001234">
+            </div>
+            <div class="form-group">
+              <label for="reg-upi">UPI ID (Optional)</label>
+              <input type="text" id="reg-upi" placeholder="yourname@paytm">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="reg-terms">
+                <span class="checkmark"></span>
+                I agree to the <a href="#">Terms & Conditions</a>
+              </label>
+            </div>
+            <div class="btn-row">
+              <button class="btn-secondary" id="btn-reg-back-3">← Back</button>
+              <button class="btn-primary-full" id="btn-reg-submit">Submit Application ✓</button>
+            </div>
+          </div>
+
+          <!-- Registration Success -->
+          <div class="register-step" id="reg-step-success">
+            <div class="success-screen">
+              <div class="success-icon">🎉</div>
+              <h3>Application Submitted!</h3>
+              <p>Your application is under review. We'll notify you within 24-48 hours.</p>
+              <div class="success-details">
+                <div class="detail-row">
+                  <span>Application ID</span>
+                  <strong>#TJ-2026-0421</strong>
+                </div>
+                <div class="detail-row">
+                  <span>Status</span>
+                  <strong class="status-pending">Under Review</strong>
+                </div>
+              </div>
+              <button class="btn-primary-full" id="btn-go-login">Go to Login →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================
+           SCREEN: DASHBOARD
+           ============================ -->
+      <div class="screen" id="screen-dashboard">
+        <div class="dashboard-screen">
+          <!-- Top Bar -->
+          <div class="top-bar">
+            <div class="top-bar-left">
+              <div class="partner-avatar">RK</div>
+              <div class="partner-info">
+                <span class="partner-greeting">Hello, Rajesh! 👋</span>
+                <span class="partner-id">TJ-Partner #1042</span>
+              </div>
+            </div>
+            <div class="top-bar-right">
+              <button class="notification-btn" id="btn-notifications">
+                🔔
+                <span class="notif-badge">3</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Online/Offline Toggle -->
+          <div class="status-toggle-card">
+            <div class="status-info">
+              <div class="status-dot online" id="status-dot"></div>
+              <div>
+                <span class="status-label" id="status-label">You're Online</span>
+                <span class="status-sub" id="status-sub">Accepting orders</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="online-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats">
+            <div class="stat-card">
+              <div class="stat-icon">📦</div>
+              <div class="stat-value">12</div>
+              <div class="stat-title">Today's Orders</div>
+            </div>
+            <div class="stat-card earnings">
+              <div class="stat-icon">💰</div>
+              <div class="stat-value">₹847</div>
+              <div class="stat-title">Today's Earning</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">⏱️</div>
+              <div class="stat-value">6.2 hrs</div>
+              <div class="stat-title">Online Time</div>
+            </div>
+          </div>
+
+          <!-- Live Order Request -->
+          <div class="live-order-card" id="live-order-card">
+            <div class="order-pulse"></div>
+            <div class="order-request-header">
+              <div class="order-tag new">NEW ORDER</div>
+              <div class="order-timer" id="order-timer">
+                <svg class="timer-ring" viewBox="0 0 36 36">
+                  <circle class="timer-bg" cx="18" cy="18" r="16"></circle>
+                  <circle class="timer-progress" cx="18" cy="18" r="16" id="timer-circle"></circle>
+                </svg>
+                <span id="timer-text">30</span>
+              </div>
+            </div>
+
+            <div class="order-details">
+              <div class="order-route">
+                <div class="route-point pickup">
+                  <div class="route-dot"></div>
+                  <div class="route-info">
+                    <span class="route-label">PICKUP</span>
+                    <span class="route-address">Tikri Junction, Kewra Bazar</span>
+                  </div>
+                </div>
+                <div class="route-line"></div>
+                <div class="route-point drop">
+                  <div class="route-dot"></div>
+                  <div class="route-info">
+                    <span class="route-label">DROP</span>
+                    <span class="route-address">Sahatwar Road, Near Bus Stand</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="order-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📏</span>
+                  <span>3.2 km</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">💰</span>
+                  <span>₹45</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">📦</span>
+                  <span>2 items</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="order-actions">
+              <button class="btn-decline" id="btn-decline-order">✕ Decline</button>
+              <button class="btn-accept" id="btn-accept-order">✓ Accept</button>
+            </div>
+          </div>
+
+          <!-- Map Placeholder -->
+          <div class="map-placeholder">
+            <div class="map-content">
+              <div class="map-grid">
+                <div class="map-marker you">📍<span>You</span></div>
+                <div class="map-road road-h"></div>
+                <div class="map-road road-v"></div>
+                <div class="map-road road-h2"></div>
+                <div class="map-road road-v2"></div>
+                <div class="map-marker shop">🏪<span>Shop</span></div>
+                <div class="map-marker customer">🏠<span>Drop</span></div>
+              </div>
+              <div class="map-label">Live Tracking Map</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+          <button class="nav-item active" data-tab="dashboard" id="nav-dashboard">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+          </button>
+          <button class="nav-item" data-tab="orders" id="nav-orders">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Orders</span>
+          </button>
+          <button class="nav-item" data-tab="earnings" id="nav-earnings">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label">Earnings</span>
+          </button>
+          <button class="nav-item" data-tab="profile" id="nav-profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- ============================
+           SCREEN: ORDERS
+           ============================ -->
+      <div class="screen" id="screen-orders">
+        <div class="orders-screen">
+          <div class="screen-header">
+            <h2>My Orders</h2>
+            <div class="order-tabs">
+              <button class="tab-btn active" data-order-tab="active" id="tab-active-orders">Active</button>
+              <button class="tab-btn" data-order-tab="completed" id="tab-completed-orders">Completed</button>
+            </div>
+          </div>
+
+          <!-- Active Orders Tab -->
+          <div class="order-tab-content active" id="orders-active">
+            <!-- Active Order Card -->
+            <div class="order-card active-order">
+              <div class="order-card-header">
+                <div>
+                  <span class="order-id">#TJ-20260421-0034</span>
+                  <span class="order-time">12:45 PM</span>
+                </div>
+                <span class="order-status in-progress">In Progress</span>
+              </div>
+
+              <div class="order-progress-track">
+                <div class="progress-step completed">
+                  <div class="progress-icon">✓</div>
+                  <span>Accepted</span>
+                </div>
+                <div class="progress-line completed"></div>
+                <div class="progress-step completed">
+                  <div class="progress-icon">✓</div>
+                  <span>Picked Up</span>
+                </div>
+                <div class="progress-line active"></div>
+                <div class="progress-step current">
+                  <div class="progress-icon pulse">🛵</div>
+                  <span>On the Way</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                  <div class="progress-icon">📍</div>
+                  <span>Delivered</span>
+                </div>
+              </div>
+
+              <div class="order-card-details">
+                <div class="detail-line">
+                  <span class="detail-icon">📦</span>
+                  <span>Tikri 1kg, Laddoo 500g</span>
+                </div>
+                <div class="detail-line">
+                  <span class="detail-icon">📍</span>
+                  <span>Sahatwar Road, Near Bus Stand</span>
+                </div>
+                <div class="detail-line">
+                  <span class="detail-icon">👤</span>
+                  <span>Amit Kumar • +91 98765 43210</span>
+                </div>
+              </div>
+
+              <div class="order-card-actions">
+                <button class="btn-navigate" id="btn-navigate">📍 Navigate</button>
+                <button class="btn-call" id="btn-call-customer">📞 Call</button>
+                <button class="btn-delivered" id="btn-mark-delivered">✓ Mark Delivered</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Orders Tab -->
+          <div class="order-tab-content" id="orders-completed">
+            <!-- Completed Order 1 -->
+            <div class="order-card completed-order">
+              <div class="order-card-header">
+                <div>
+                  <span class="order-id">#TJ-20260421-0033</span>
+                  <span class="order-time">11:30 AM</span>
+                </div>
+                <span class="order-status delivered">Delivered ✓</span>
+              </div>
+              <div class="order-card-details compact">
+                <div class="detail-line">
+                  <span class="detail-icon">📦</span>
+                  <span>Samosa x10, Litti x5</span>
+                </div>
+                <div class="detail-line">
+                  <span class="detail-icon">📏</span>
+                  <span>2.1 km • 18 min</span>
+                </div>
+              </div>
+              <div class="order-card-footer">
+                <span class="order-earning">+₹38</span>
+                <div class="order-rating">⭐ 5.0</div>
+              </div>
+            </div>
+
+            <!-- Completed Order 2 -->
+            <div class="order-card completed-order">
+              <div class="order-card-header">
+                <div>
+                  <span class="order-id">#TJ-20260421-0032</span>
+                  <span class="order-time">10:15 AM</span>
+                </div>
+                <span class="order-status delivered">Delivered ✓</span>
+              </div>
+              <div class="order-card-details compact">
+                <div class="detail-line">
+                  <span class="detail-icon">📦</span>
+                  <span>Peda 2kg, Sonpapdi 1kg</span>
+                </div>
+                <div class="detail-line">
+                  <span class="detail-icon">📏</span>
+                  <span>4.5 km • 25 min</span>
+                </div>
+              </div>
+              <div class="order-card-footer">
+                <span class="order-earning">+₹62</span>
+                <div class="order-rating">⭐ 4.8</div>
+              </div>
+            </div>
+
+            <!-- Completed Order 3 -->
+            <div class="order-card completed-order">
+              <div class="order-card-header">
+                <div>
+                  <span class="order-id">#TJ-20260421-0031</span>
+                  <span class="order-time">09:00 AM</span>
+                </div>
+                <span class="order-status delivered">Delivered ✓</span>
+              </div>
+              <div class="order-card-details compact">
+                <div class="detail-line">
+                  <span class="detail-icon">📦</span>
+                  <span>Tikri 2kg</span>
+                </div>
+                <div class="detail-line">
+                  <span class="detail-icon">📏</span>
+                  <span>1.8 km • 12 min</span>
+                </div>
+              </div>
+              <div class="order-card-footer">
+                <span class="order-earning">+₹35</span>
+                <div class="order-rating">⭐ 5.0</div>
+              </div>
+            </div>
+
+            <!-- Completed Order 4 (yesterday) -->
+            <div class="order-date-divider">Yesterday, 20 Apr 2026</div>
+            <div class="order-card completed-order">
+              <div class="order-card-header">
+                <div>
+                  <span class="order-id">#TJ-20260420-0028</span>
+                  <span class="order-time">07:30 PM</span>
+                </div>
+                <span class="order-status delivered">Delivered ✓</span>
+              </div>
+              <div class="order-card-details compact">
+                <div class="detail-line">
+                  <span class="detail-icon">📦</span>
+                  <span>Laddoo 5kg, Tikri 3kg</span>
+                </div>
+                <div class="detail-line">
+                  <span class="detail-icon">📏</span>
+                  <span>5.2 km • 30 min</span>
+                </div>
+              </div>
+              <div class="order-card-footer">
+                <span class="order-earning">+₹85</span>
+                <div class="order-rating">⭐ 4.9</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+          <button class="nav-item" data-tab="dashboard">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+          </button>
+          <button class="nav-item active" data-tab="orders">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Orders</span>
+          </button>
+          <button class="nav-item" data-tab="earnings">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label">Earnings</span>
+          </button>
+          <button class="nav-item" data-tab="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- ============================
+           SCREEN: EARNINGS
+           ============================ -->
+      <div class="screen" id="screen-earnings">
+        <div class="earnings-screen">
+          <div class="screen-header">
+            <h2>Earnings</h2>
+          </div>
+
+          <!-- Earnings Summary Card -->
+          <div class="earnings-hero-card">
+            <div class="earnings-hero-bg"></div>
+            <div class="earnings-period-tabs">
+              <button class="period-tab active" data-period="today" id="period-today">Today</button>
+              <button class="period-tab" data-period="week" id="period-week">This Week</button>
+              <button class="period-tab" data-period="month" id="period-month">This Month</button>
+            </div>
+            <div class="earnings-amount" id="earnings-amount">₹847</div>
+            <div class="earnings-comparison" id="earnings-comparison">
+              <span class="earnings-up">↑ 12%</span> vs yesterday
+            </div>
+          </div>
+
+          <!-- Earnings Breakdown -->
+          <div class="earnings-breakdown">
+            <h3>Today's Breakdown</h3>
+            <div class="breakdown-item">
+              <div class="breakdown-left">
+                <span class="breakdown-icon">🚚</span>
+                <span>Delivery Fees</span>
+              </div>
+              <span class="breakdown-value">₹540</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-left">
+                <span class="breakdown-icon">🎁</span>
+                <span>Tips</span>
+              </div>
+              <span class="breakdown-value">₹120</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-left">
+                <span class="breakdown-icon">⚡</span>
+                <span>Surge Bonus</span>
+              </div>
+              <span class="breakdown-value">₹87</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-left">
+                <span class="breakdown-icon">🏆</span>
+                <span>Incentive Bonus</span>
+              </div>
+              <span class="breakdown-value">₹100</span>
+            </div>
+            <div class="breakdown-total">
+              <span>Total Earnings</span>
+              <span>₹847</span>
+            </div>
+          </div>
+
+          <!-- Weekly Chart -->
+          <div class="earnings-chart-card">
+            <h3>Weekly Overview</h3>
+            <div class="bar-chart">
+              <div class="bar-group">
+                <div class="bar" style="--bar-height: 60%"><span class="bar-val">₹620</span></div>
+                <span class="bar-label">Mon</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="--bar-height: 80%"><span class="bar-val">₹810</span></div>
+                <span class="bar-label">Tue</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="--bar-height: 45%"><span class="bar-val">₹450</span></div>
+                <span class="bar-label">Wed</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="--bar-height: 90%"><span class="bar-val">₹920</span></div>
+                <span class="bar-label">Thu</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="--bar-height: 70%"><span class="bar-val">₹710</span></div>
+                <span class="bar-label">Fri</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar active" style="--bar-height: 85%"><span class="bar-val">₹847</span></div>
+                <span class="bar-label">Sat</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar future" style="--bar-height: 0%"><span class="bar-val">—</span></div>
+                <span class="bar-label">Sun</span>
+              </div>
+            </div>
+            <div class="chart-summary">
+              <span>Weekly Total: <strong>₹4,357</strong></span>
+            </div>
+          </div>
+
+          <!-- Payout Section -->
+          <div class="payout-card">
+            <div class="payout-header">
+              <h3>💳 Payout</h3>
+              <span class="payout-schedule">Next: Wed, 23 Apr</span>
+            </div>
+            <div class="payout-balance">
+              <span class="payout-label">Available Balance</span>
+              <span class="payout-amount">₹4,357</span>
+            </div>
+            <div class="payout-bank">
+              <span class="bank-icon">🏦</span>
+              <div class="bank-info">
+                <span class="bank-name">State Bank of India</span>
+                <span class="bank-account">A/C ••••1234</span>
+              </div>
+            </div>
+            <button class="btn-payout" id="btn-request-payout">Request Instant Payout</button>
+          </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+          <button class="nav-item" data-tab="dashboard">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+          </button>
+          <button class="nav-item" data-tab="orders">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Orders</span>
+          </button>
+          <button class="nav-item active" data-tab="earnings">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label">Earnings</span>
+          </button>
+          <button class="nav-item" data-tab="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- ============================
+           SCREEN: PROFILE
+           ============================ -->
+      <div class="screen" id="screen-profile">
+        <div class="profile-screen">
+          <!-- Profile Header -->
+          <div class="profile-hero">
+            <div class="profile-bg-pattern"></div>
+            <div class="profile-avatar-large">
+              <span>RK</span>
+              <div class="profile-online-dot"></div>
+            </div>
+            <h2 class="profile-name">Rajesh Kumar</h2>
+            <p class="profile-role">Delivery Partner since Jan 2025</p>
+            <div class="profile-badges">
+              <span class="badge gold">⭐ Top Rated</span>
+              <span class="badge blue">🚀 Speed Star</span>
+            </div>
+          </div>
+
+          <!-- Performance Stats -->
+          <div class="profile-stats-grid">
+            <div class="profile-stat">
+              <div class="profile-stat-value">4.9</div>
+              <div class="profile-stat-label">Rating</div>
+              <div class="profile-stat-icon">⭐</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value">1,247</div>
+              <div class="profile-stat-label">Deliveries</div>
+              <div class="profile-stat-icon">📦</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value">98%</div>
+              <div class="profile-stat-label">Acceptance</div>
+              <div class="profile-stat-icon">✅</div>
+            </div>
+          </div>
+
+          <!-- Profile Menu -->
+          <div class="profile-menu">
+            <div class="menu-section">
+              <h4 class="menu-section-title">Account</h4>
+              <div class="menu-item" id="menu-personal-info">
+                <span class="menu-icon">👤</span>
+                <span class="menu-text">Personal Information</span>
+                <span class="menu-arrow">→</span>
+              </div>
+              <div class="menu-item" id="menu-vehicle-info">
+                <span class="menu-icon">🏍️</span>
+                <div class="menu-text-group">
+                  <span class="menu-text">Vehicle Details</span>
+                  <span class="menu-detail">Honda Activa • UP 64 AB 1234</span>
+                </div>
+                <span class="menu-arrow">→</span>
+              </div>
+              <div class="menu-item" id="menu-bank-info">
+                <span class="menu-icon">🏦</span>
+                <div class="menu-text-group">
+                  <span class="menu-text">Bank Account</span>
+                  <span class="menu-detail">SBI ••••1234</span>
+                </div>
+                <span class="menu-arrow">→</span>
+              </div>
+              <div class="menu-item" id="menu-documents">
+                <span class="menu-icon">📄</span>
+                <div class="menu-text-group">
+                  <span class="menu-text">Documents</span>
+                  <span class="menu-detail verified">All Verified ✓</span>
+                </div>
+                <span class="menu-arrow">→</span>
+              </div>
+            </div>
+
+            <div class="menu-section">
+              <h4 class="menu-section-title">Preferences</h4>
+              <div class="menu-item" id="menu-notifications">
+                <span class="menu-icon">🔔</span>
+                <span class="menu-text">Notifications</span>
+                <label class="mini-toggle">
+                  <input type="checkbox" checked>
+                  <span class="mini-toggle-slider"></span>
+                </label>
+              </div>
+              <div class="menu-item" id="menu-language">
+                <span class="menu-icon">🌐</span>
+                <span class="menu-text">Language</span>
+                <span class="menu-value">English</span>
+              </div>
+              <div class="menu-item" id="menu-dark-mode">
+                <span class="menu-icon">🌙</span>
+                <span class="menu-text">Dark Mode</span>
+                <label class="mini-toggle">
+                  <input type="checkbox" checked>
+                  <span class="mini-toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="menu-section">
+              <h4 class="menu-section-title">Support</h4>
+              <div class="menu-item" id="menu-help">
+                <span class="menu-icon">❓</span>
+                <span class="menu-text">Help & Support</span>
+                <span class="menu-arrow">→</span>
+              </div>
+              <div class="menu-item" id="menu-about">
+                <span class="menu-icon">ℹ️</span>
+                <span class="menu-text">About</span>
+                <span class="menu-arrow">→</span>
+              </div>
+            </div>
+
+            <button class="btn-logout" id="btn-logout">
+              🚪 Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+          <button class="nav-item" data-tab="dashboard">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+          </button>
+          <button class="nav-item" data-tab="orders">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Orders</span>
+          </button>
+          <button class="nav-item" data-tab="earnings">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label">Earnings</span>
+          </button>
+          <button class="nav-item active" data-tab="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- ============================
+           TOAST / NOTIFICATION
+           ============================ -->
+      <div class="toast-container" id="toast-container"></div>
+
+      <!-- ============================
+           NOTIFICATIONS PANEL
+           ============================ -->
+      <div class="notif-panel" id="notif-panel">
+        <div class="notif-header">
+          <h3>Notifications</h3>
+          <button class="btn-close-notif" id="btn-close-notif">✕</button>
+        </div>
+        <div class="notif-list">
+          <div class="notif-item unread">
+            <div class="notif-icon">🎉</div>
+            <div class="notif-content">
+              <span class="notif-title">Incentive Unlocked!</span>
+              <span class="notif-text">Complete 3 more deliveries to earn ₹200 bonus</span>
+              <span class="notif-time">5 min ago</span>
+            </div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-icon">⭐</div>
+            <div class="notif-content">
+              <span class="notif-title">New Rating</span>
+              <span class="notif-text">Amit Kumar rated you 5 stars! "Great service"</span>
+              <span class="notif-time">20 min ago</span>
+            </div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-icon">💰</div>
+            <div class="notif-content">
+              <span class="notif-title">Payout Processed</span>
+              <span class="notif-text">₹3,240 transferred to SBI ••••1234</span>
+              <span class="notif-time">2 hrs ago</span>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon">📢</div>
+            <div class="notif-content">
+              <span class="notif-title">High Demand Zone!</span>
+              <span class="notif-text">Kewra Bazar area has high demand. Go online for more orders!</span>
+              <span class="notif-time">5 hrs ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /phone-mockup -->
+  </div><!-- /app-frame -->
+
+  <!-- Desktop Info Sidebar -->
+  <div class="desktop-info">
+    <div class="info-header">
+      <div class="info-logo">🛵</div>
+      <h2>Tikri Junction</h2>
+      <p>Delivery Partner Portal</p>
+    </div>
+    <div class="info-features">
+      <div class="info-feature">
+        <span class="info-feature-icon">📱</span>
+        <div>
+          <strong>Mobile-First Design</strong>
+          <p>Optimized for delivery partners on the go</p>
+        </div>
+      </div>
+      <div class="info-feature">
+        <span class="info-feature-icon">📍</span>
+        <div>
+          <strong>Live Order Tracking</strong>
+          <p>Real-time GPS navigation to pickup & drop</p>
+        </div>
+      </div>
+      <div class="info-feature">
+        <span class="info-feature-icon">💰</span>
+        <div>
+          <strong>Instant Payouts</strong>
+          <p>Request earnings withdrawal anytime</p>
+        </div>
+      </div>
+      <div class="info-feature">
+        <span class="info-feature-icon">📊</span>
+        <div>
+          <strong>Performance Analytics</strong>
+          <p>Track your deliveries, ratings & earnings</p>
+        </div>
+      </div>
+    </div>
+    <div class="info-cta">
+      <p>Built with ❤️ for Tikri Junction</p>
+      <a href="index.html" class="info-link">← Back to Main Website</a>
+    </div>
+  </div>
+
+  <script src="js/partner.js"></script>
+</body>
+
+</html>
